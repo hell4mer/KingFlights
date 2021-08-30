@@ -7,39 +7,17 @@ export class Flights extends Component {
         super(props);
         this.state = { flights: [], loading: true };
 
-        this.handleSearch = this.handleSearch.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleSubmit(e) {
-        e.preventDefault();
-        this.populateFlightsData();
-    }
-
-    handleSearch(e) {
+        
         e.preventDefault();
         this.populateFlightsData();
     }
 
     componentDidMount() {
-        this.populateFlightsData();
-    }
-
-    static searchParamsBox() {
-        return (
-            <form class="form-inline" onSubmit={event => this.handleSubmit(event)}>
-                <div class="form-group">
-                    <label for="currency">Currency:</label>
-                    <input id="currency" name="currency" class="form-control"/>
-                </div>
-                <div class="form-group">
-                    <label for="departureAirport">Departure airport: </label>
-                    <input id="departureAirport" name="departureAirport" class="form-control"/>
-                </div>
-                <button id="searchBtn" class="btn btn-default" onClick={this.handleSearch}>Search</button>
-            </form>
-        );
-
+        //this.populateFlightsData();
     }
 
     static renderFlightsTable(flights) {
@@ -60,10 +38,10 @@ export class Flights extends Component {
                         <tr key={flight.id}>
                             <td>{flight.originLocationCode}</td>
                             <td>{flight.destinationLocationCode}</td>
-                            <td>{flight.departureDate}</td>
+                            <td>{new Date(flight.departureDate).toLocaleDateString('hr-HR')}</td>
                             <td>{flight.transfers}</td>
                             <td>{flight.passengers}</td>
-                            <td>{flight.price + " " + flight.currency}</td>
+                            <td>{flight.price + " " + flight.currencyCode}</td>
                         </tr>
                     )}
                 </tbody>
@@ -78,24 +56,66 @@ export class Flights extends Component {
 
         return (
             <div>
-                <h1 id="tabelLabel" >Flights</h1>
-                <p>List of flights</p>
+                <h1 id="tabelLabel" >Low-cost flights search</h1>
 
-                {Flights.searchParamsBox()}
-                <br/>
+                <form onSubmit={this.handleSubmit}>
+                    <div class="form-group">
+                        <label for="originLocationCode">Origin location:</label>
+                        <input id="originLocationCode" type="text" name="originLocationCode" maxLength="3" class="form-control text-uppercase" />
+                    </div>
+                    <div class="form-group">
+                        <label for="destinationLocationCode">Destination location:</label>
+                        <input id="destinationLocationCode" type="text" name="destinationLocationCode" maxLength="3" class="form-control text-uppercase" />
+                    </div>
+                    <div class="form-group">
+                        <label for="departureDate">Departure:</label>
+                        <input id="departureDate" name="departureDate" type="date" placeholder="Departure?" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="returnDate">Date of return:</label>
+                        <input id="returnDate" name="returnDate" type="date" placeholder="Return?" class="form-control" />
+                    </div>
+                    
+                    
+
+                    <div class="form-group">
+                        <label for="passengers">Passengers:</label>
+                        <select id="passengers" name="passengers" class="form-control input-sm">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="currencyCode">Currency:</label>
+                        <select id="currencyCode" name="currencyCode" class="form-control input-sm">
+                            <option>USD</option>
+                            <option>EUR</option>
+                            <option>HRK</option>
+                        </select>
+                    </div>
+                    <input type="submit" class="btn btn-default" value="Search" />
+                </form>
+
+                <br />
                 {contents}
             </div>
         );
     }
 
     async populateFlightsData() {
-        //var urlParams = new URLSearchParams({
-        //    currency: document.getElementById('currency').value
-        //});
-
-        const response = await fetch('flights/get', { //+ urlParams);
-            method: 'POST'
+        var urlParams = new URLSearchParams({
+            originLocationCode: document.getElementById('originLocationCode').value,
+            destinationLocationCode: document.getElementById('destinationLocationCode').value,
+            departureDate: document.getElementById('departureDate').value,
+            returnDate: document.getElementById('returnDate').value,
+            passengers: document.getElementById('passengers').value,
+            currencyCode: document.getElementById('currencyCode').value
         });
+
+        const response = await fetch('flights/GetCheapFlights?' + urlParams);
         const data = await response.json();
         this.setState({ flights: data, loading: false });
     }
