@@ -5,7 +5,7 @@ export class Flights extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { flights: [], loading: true };
+        this.state = { flights: [], loading: false };
 
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -14,10 +14,6 @@ export class Flights extends Component {
         
         e.preventDefault();
         this.populateFlightsData();
-    }
-
-    componentDidMount() {
-        //this.populateFlightsData();
     }
 
     static renderFlightsTable(flights) {
@@ -58,7 +54,7 @@ export class Flights extends Component {
             <div>
                 <h1 id="tabelLabel" >Low-cost flights search</h1>
 
-                <form onSubmit={this.handleSubmit}>
+                <form id="searchFlightsForm" onSubmit={this.handleSubmit}>
                     <div class="form-group">
                         <label for="originLocationCode">Origin location:</label>
                         <input id="originLocationCode" type="text" name="originLocationCode" maxLength="3" class="form-control text-uppercase" />
@@ -76,8 +72,6 @@ export class Flights extends Component {
                         <input id="returnDate" name="returnDate" type="date" placeholder="Return?" class="form-control" />
                     </div>
                     
-                    
-
                     <div class="form-group">
                         <label for="passengers">Passengers:</label>
                         <select id="passengers" name="passengers" class="form-control input-sm">
@@ -106,16 +100,17 @@ export class Flights extends Component {
     }
 
     async populateFlightsData() {
+        var inputs = document.getElementById("searchFlightsForm").elements;
         var urlParams = new URLSearchParams({
-            originLocationCode: document.getElementById('originLocationCode').value,
-            destinationLocationCode: document.getElementById('destinationLocationCode').value,
-            departureDate: document.getElementById('departureDate').value,
-            returnDate: document.getElementById('returnDate').value,
-            passengers: document.getElementById('passengers').value,
-            currencyCode: document.getElementById('currencyCode').value
+            originLocationCode: inputs['originLocationCode'].value.toUpperCase(),
+            destinationLocationCode: inputs['destinationLocationCode'].value.toUpperCase(),
+            departureDate: inputs['departureDate'].value,
+            returnDate: inputs['returnDate'].value,
+            passengers: inputs['passengers'].value,
+            currencyCode: inputs['currencyCode'].value
         });
 
-        const response = await fetch('flights/GetCheapFlights?' + urlParams);
+        const response = await fetch('flights/get?' + urlParams);
         const data = await response.json();
         this.setState({ flights: data, loading: false });
     }

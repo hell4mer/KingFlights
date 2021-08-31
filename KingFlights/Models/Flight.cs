@@ -37,4 +37,42 @@ namespace KingFlights
             CurrencyCode = currencyCode;
         }
     }
+
+    public class FlightSearch
+    {
+        public int Id { get; set; }
+        public string SearchParams { get; set; }
+
+        public FlightSearch()
+        {
+
+        }
+
+        public FlightSearch(string srcParams)
+        {
+            SearchParams = srcParams;
+        }
+    }
+
+    public class FlightSearchResult
+    {
+        public int Id { get; set; }
+        public int SearchId { get; set; }
+        public int Transfers { get; set; }
+        public int Passengers { get; set; }
+        public double Price { get; set; }
+
+        public FlightSearchResult()
+        {
+
+        }
+
+        public FlightSearchResult(int searchId, int transfers, int passengers, double price)
+        {
+            SearchId = searchId;
+            Transfers = transfers;
+            Passengers = passengers;
+            Price = price;
+        }
+    }
 }

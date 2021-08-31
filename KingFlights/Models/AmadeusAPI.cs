@@ -50,7 +50,7 @@ namespace KingFlights
         public async Task<FlightOfferResults> GetCheapFlightOffers(string originLocationCode, string destinationLocationCode, DateTime departureDate, DateTime? returnDate, int passengers, string currencyCode)
         {
             var message = new HttpRequestMessage(HttpMethod.Get,
-                $"/v2/shopping/flight-offers?originLocationCode={originLocationCode}&destinationLocationCode={destinationLocationCode}&departureDate={departureDate:yyyy-MM-dd}&returnDate={returnDate:yyyy-MM-dd}&adults={passengers}&currencyCode={currencyCode}");
+                $"/v2/shopping/flight-offers?originLocationCode={originLocationCode}&destinationLocationCode={destinationLocationCode}&departureDate={departureDate:yyyy-MM-dd}&returnDate={returnDate:yyyy-MM-dd}&adults={passengers}&currencyCode={currencyCode}&max=25");
 
             ConfigBearerTokenHeader();
             var response = await http.SendAsync(message);
