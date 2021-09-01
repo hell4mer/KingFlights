@@ -53,14 +53,13 @@ namespace KingFlights.Controllers
 
         [HttpGet]
         [Route("~/Flights/GetAirports")]
-        public IEnumerable<Airport> GetAirports(string search)
+        public IEnumerable<AirportAutoComplete> GetAirports(string search)
         {
-            var results = new List<Airport>();
-            using (var db = new LiteDatabase("airports.db"))
+            var results = new List<AirportAutoComplete>();
+            using (var db = new LiteDatabase("Filename=airports.db;Connection=Shared"))
             {
                 var airportsTable = db.GetCollection<Airport>("airports");
-
-                results = airportsTable.Query().Where(a => a.City.StartsWith(search)).ToList();
+                airportsTable.Query().Where(a => a.City.StartsWith(search)).Limit(10).ToList().ForEach(p=> results.Add(new AirportAutoComplete(p.IATA, p.Name, p.City,p.Country)));
             }
 
             return results;

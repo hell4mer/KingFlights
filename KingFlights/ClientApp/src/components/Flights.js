@@ -5,14 +5,46 @@ export class Flights extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { flights: [], loading: false, hasRecords: false, firstLoad:true };
+        this.state = { flights: [], airports: [], loading: false, hasRecords: false, firstLoad: true };
 
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChangeOrg = this.handleChangeOrg.bind(this);
+        this.handleChangeDest = this.handleChangeDest.bind(this);
+    }
+
+    handleChangeOrg(e) {
+        let value = document.getElementById("originLocationCode").value;
+        if (value.length > 0) {
+            this.getAirportsData(value);
+            Flights.renderAirportsData(this.state.airports);
+        }
+    }
+
+    handleChangeDest(e) {
+        let value = document.getElementById("destinationLocationCode").value;
+        if (value.length > 0) {
+            this.getAirportsData(value);
+            Flights.renderAirportsData(this.state.airports);
+        }
+    }
+
+    async getAirportsData(searchParam) {
+        const response = await fetch('flights/getAirports?search=' + searchParam);
+        const data = await response.json();
+        this.setState({ airports: data });
     }
 
     handleSubmit(e) {
         e.preventDefault();
         this.populateFlightsData();
+    }
+
+    static renderAirportsData(airports) {
+        return (
+            <datalist id="airports">
+                {airports.map(a => <option key={a.valueData} value={a.valueData}>{a.displayData}</option>)}
+            </datalist >
+        );
     }
 
     static renderFlightsTable(flights) {
@@ -52,13 +84,15 @@ export class Flights extends Component {
         return (
             <div>
                 <form id="searchFlightsForm" onSubmit={this.handleSubmit}>
+                    {Flights.renderAirportsData(this.state.airports)}
+
                     <div className="form-group has-warning">
                         <label htmlFor="originLocationCode">Origin location:</label>
-                        <input id="originLocationCode" type="text" name="originLocationCode" maxLength="3" className="form-control text-uppercase" required />
+                        <input id="originLocationCode" list="airports" onKeyUp={this.handleChangeOrg} name="originLocationCode" className="form-control" required />
                     </div>
                     <div className="form-group has-warning">
                         <label htmlFor="destinationLocationCode">Destination location:</label>
-                        <input id="destinationLocationCode" type="text" name="destinationLocationCode" maxLength="3" className="form-control text-uppercase" required />
+                        <input id="destinationLocationCode" list="airports" onKeyUp={this.handleChangeDest} name="destinationLocationCode" className="form-control" required />
                     </div>
                     <div className="form-group has-warning">
                         <label htmlFor="departureDate">Departure:</label>
@@ -97,7 +131,7 @@ export class Flights extends Component {
     }
 
     async populateFlightsData() {
-        this.setState({  loading: true, firstLoad: false });
+        this.setState({ loading: true, firstLoad: false });
         var inputs = document.getElementById("searchFlightsForm").elements;
         var urlParams = new URLSearchParams({
             originLocationCode: inputs['originLocationCode'].value.toUpperCase(),

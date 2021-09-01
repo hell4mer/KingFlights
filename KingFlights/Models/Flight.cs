@@ -85,4 +85,21 @@ namespace KingFlights
         public string Country { get; set; }
         public string IATA { get; set; }
     }
+
+    public class AirportAutoComplete
+    {
+        public string ValueData { get; set; }
+        public string DisplayData { get; set; }
+
+        public AirportAutoComplete()
+        {
+
+        }
+
+        public AirportAutoComplete(string iata, string name, string city, string country)
+        {
+            ValueData = iata;
+            DisplayData = $"{name} ({city}, {country}) [{iata}]";
+        }
+    }
 }
