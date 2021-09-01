@@ -23,14 +23,14 @@ namespace KingFlights
         {
             using (var db = new LiteDatabase(ConnectionString))
             {
-                var flightSearch = db.GetCollection<FlightSearch>("flightSearches");
+                var flightSearchTable = db.GetCollection<FlightSearch>("flightSearches");
                 
-                var s = flightSearch.FindOne(r => r.SearchParams == searchParams);
+                var s = flightSearchTable.FindOne(r => r.SearchParams == searchParams);
 
                 if (s != null)
                 {
-                    var flightSearchResults = db.GetCollection<FlightSearchResult>("flightSearchesResults");
-                    Results = flightSearchResults.Query().Where(r => r.SearchId == s.Id).ToList();
+                    var flightSearchResultsTable = db.GetCollection<FlightSearchResult>("flightSearchesResults");
+                    Results = flightSearchResultsTable.Query().Where(r => r.SearchId == s.Id).ToList();
                     Search = s;
                 }
                 else
@@ -44,17 +44,17 @@ namespace KingFlights
         {
             using (var db = new LiteDatabase(ConnectionString))
             {
-                var flightSearch = db.GetCollection<FlightSearch>("flightSearches");
-                flightSearch.Insert(Search);
-                flightSearch.EnsureIndex(f => f.Id);
-                flightSearch.EnsureIndex(f => f.SearchParams);
+                var flightSearchTable = db.GetCollection<FlightSearch>("flightSearches");
+                flightSearchTable.Insert(Search);
+                flightSearchTable.EnsureIndex(f => f.Id);
+                flightSearchTable.EnsureIndex(f => f.SearchParams);
 
-                var flightSearchResults = db.GetCollection<FlightSearchResult>("flightSearchesResults");
+                var flightSearchResultsTable = db.GetCollection<FlightSearchResult>("flightSearchesResults");
 
                 Results = new List<FlightSearchResult>();
                 flights.ForEach(f => Results.Add(new FlightSearchResult(Search.Id, f.Transfers, f.Passengers, f.Price)));
-                flightSearchResults.InsertBulk(Results);
-                flightSearchResults.EnsureIndex(f => f.SearchId);
+                flightSearchResultsTable.InsertBulk(Results);
+                flightSearchResultsTable.EnsureIndex(f => f.SearchId);
             }
         }
     }

@@ -5,13 +5,12 @@ export class Flights extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { flights: [], loading: false };
+        this.state = { flights: [], loading: false, hasRecords: false, firstLoad:true };
 
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleSubmit(e) {
-        
         e.preventDefault();
         this.populateFlightsData();
     }
@@ -46,35 +45,33 @@ export class Flights extends Component {
     }
 
     render() {
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : Flights.renderFlightsTable(this.state.flights);
+        let contents = !this.state.loading ? this.state.hasRecords ? Flights.renderFlightsTable(this.state.flights)
+            : !this.state.firstLoad ? <p><em>No results. Please refine your search parameters.</em></p> : <div /> : <div />;
+        let loadingAreaText = this.state.loading ? <span><em> Loading...</em></span> : <div />;
 
         return (
             <div>
-                <h1 id="tabelLabel" >Low-cost flights search</h1>
-
                 <form id="searchFlightsForm" onSubmit={this.handleSubmit}>
-                    <div class="form-group">
-                        <label for="originLocationCode">Origin location:</label>
-                        <input id="originLocationCode" type="text" name="originLocationCode" maxLength="3" class="form-control text-uppercase" />
+                    <div className="form-group has-warning">
+                        <label htmlFor="originLocationCode">Origin location:</label>
+                        <input id="originLocationCode" type="text" name="originLocationCode" maxLength="3" className="form-control text-uppercase" required />
                     </div>
-                    <div class="form-group">
-                        <label for="destinationLocationCode">Destination location:</label>
-                        <input id="destinationLocationCode" type="text" name="destinationLocationCode" maxLength="3" class="form-control text-uppercase" />
+                    <div className="form-group has-warning">
+                        <label htmlFor="destinationLocationCode">Destination location:</label>
+                        <input id="destinationLocationCode" type="text" name="destinationLocationCode" maxLength="3" className="form-control text-uppercase" required />
                     </div>
-                    <div class="form-group">
-                        <label for="departureDate">Departure:</label>
-                        <input id="departureDate" name="departureDate" type="date" placeholder="Departure?" class="form-control" />
+                    <div className="form-group has-warning">
+                        <label htmlFor="departureDate">Departure:</label>
+                        <input id="departureDate" name="departureDate" type="date" placeholder="Departure?" className="form-control" required />
                     </div>
-                    <div class="form-group">
-                        <label for="returnDate">Date of return:</label>
-                        <input id="returnDate" name="returnDate" type="date" placeholder="Return?" class="form-control" />
+                    <div className="form-group">
+                        <label htmlFor="returnDate">Date of return:</label>
+                        <input id="returnDate" name="returnDate" type="date" placeholder="Return?" className="form-control" />
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="passengers">Passengers:</label>
-                        <select id="passengers" name="passengers" class="form-control input-sm">
+
+                    <div className="form-group">
+                        <label htmlFor="passengers">Passengers:</label>
+                        <select id="passengers" name="passengers" className="form-control input-sm">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -82,17 +79,17 @@ export class Flights extends Component {
                             <option>5</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="currencyCode">Currency:</label>
-                        <select id="currencyCode" name="currencyCode" class="form-control input-sm">
+                    <div className="form-group">
+                        <label htmlFor="currencyCode">Currency:</label>
+                        <select id="currencyCode" name="currencyCode" className="form-control input-sm">
                             <option>USD</option>
                             <option>EUR</option>
                             <option>HRK</option>
                         </select>
                     </div>
-                    <input type="submit" class="btn btn-default" value="Search" />
+                    <input type="submit" className="btn btn-default" value="Search" />
+                    {loadingAreaText}
                 </form>
-
                 <br />
                 {contents}
             </div>
@@ -100,6 +97,7 @@ export class Flights extends Component {
     }
 
     async populateFlightsData() {
+        this.setState({  loading: true, firstLoad: false });
         var inputs = document.getElementById("searchFlightsForm").elements;
         var urlParams = new URLSearchParams({
             originLocationCode: inputs['originLocationCode'].value.toUpperCase(),
@@ -112,6 +110,6 @@ export class Flights extends Component {
 
         const response = await fetch('flights/get?' + urlParams);
         const data = await response.json();
-        this.setState({ flights: data, loading: false });
+        this.setState({ flights: data, loading: false, hasRecords: data.length > 0 });
     }
 }
